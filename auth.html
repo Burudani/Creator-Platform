@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreatorSpace - Sign Up and Login</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: #f3edff;
+      color: #24113f;
+    }
+
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 400px;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 8px 30px #30105b18;
+    }
+
+    h1 {
+      color: #7028d9;
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+      color: #665b76;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+
+    input {
+      border: 1px solid #d7cbe9;
+    }
+
+    button {
+      border: none;
+      background: #7028d9;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .switch {
+      background: #eee4ff;
+      color: #7028d9;
+    }
+
+    #message {
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    a { color: #7028d9; }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>CreatorSpace</h1>
+    <p id="subtitle">Create your creator account</p>
+
+    <form id="authForm">
+      <input id="email" type="email"
+        placeholder="Email address" required>
+
+      <input id="password" type="password"
+        placeholder="Password (at least 6 characters)"
+        minlength="6" required>
+
+      <button id="submitBtn" type="submit">
+        Create Account
+      </button>
+    </form>
+
+    <button class="switch" id="switchBtn" type="button">
+      Already have an account? Log in
+    </button>
+
+    <p id="message" role="status"></p>
+    <p><a href="index.html">Back to homepage</a></p>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "PASTE_YOUR_API_KEY",
+      authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+      projectId: "PASTE_YOUR_PROJECT_ID",
+      appId: "PASTE_YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    let isLogin = false;
+
+    const form = document.getElementById("authForm");
+    const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+    const switchBtn = document.getElementById("switchBtn");
+
+    switchBtn.addEventListener("click", () => {
+      isLogin = !isLogin;
+
+      document.getElementById("subtitle").textContent =
+        isLogin ? "Welcome back!" :
+        "Create your creator account";
+
+      submitBtn.textContent =
+        isLogin ? "Log In" : "Create Account";
+
+      switchBtn.textContent =
+        isLogin ? "New here? Create an account" :
+        "Already have an account? Log in";
+
+      message.textContent = "";
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "Please wait...";
+      submitBtn.disabled = true;
+
+      try {
+        const email =
+          document.getElementById("email").value.trim();
+
+        const password =
+          document.getElementById("password").value;
+
+        if (isLogin) {
+          await auth.signInWithEmailAndPassword(email, password);
+          message.textContent = "Login successful!";
+        } else {
+          await auth.createUserWithEmailAndPassword(email, password);
+          message.textContent = "Account created successfully!";
+        }
+      } catch (error) {
+        message.textContent = error.message;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
